@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydro Smart</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#1fb6ff', 
+                        sidebarHover: '#0fa3e5',
+                        topbar: '#343a40',  
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase Config -->
+    <script src="supabase-config.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-sidebar text-white flex-shrink-0 hidden md:flex md:flex-col transition-colors duration-300 dark:bg-gray-800">
+        <div class="h-14 flex items-center justify-center bg-topbar dark:bg-gray-950">
+            <h1 class="text-xl font-bold tracking-wider"><i class="fa-solid fa-droplet mr-2"></i>Hydro Smart</h1>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="index.html" class="flex items-center px-6 py-3 bg-sidebarHover border-l-4 border-white dark:bg-gray-700 dark:border-blue-500">
+                        <i class="fa-solid fa-gauge-high w-6"></i>
+                        <span class="ml-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="historico.html" class="flex items-center px-6 py-3 hover:bg-sidebarHover transition-colors dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-chart-line w-6"></i>
+                        <span class="ml-3">Histórico</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 hover:bg-sidebarHover transition-colors dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-gear w-6"></i>
+                        <span class="ml-3">Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Topbar -->
+        <header class="h-14 bg-topbar text-white flex items-center justify-between px-6 dark:bg-gray-950 transition-colors duration-300">
+            <button class="md:hidden text-gray-300 hover:text-white">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="flex-1"></div>
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="text-gray-300 hover:text-white focus:outline-none" title="Alternar Modo Escuro">
+                    <i id="theme-toggle-dark-icon" class="fa-solid fa-moon hidden text-lg"></i>
+                    <i id="theme-toggle-light-icon" class="fa-solid fa-sun hidden text-lg"></i>
+                </button>
+                <button class="text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 p-6">
+            
+            <!-- Page Header -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
+                <h2 class="text-3xl font-light text-gray-800 dark:text-gray-100">Dashboard <span class="text-lg text-gray-500 dark:text-gray-400">Resumo do Consumo</span></h2>
+                <div class="text-sm text-gray-500 mt-1 dark:text-gray-400">Início / Dashboard</div>
+            </div>
+
+            <!-- Cards Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                
+                <!-- Card 1: Hoje -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 flex flex-col items-center justify-center transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-green-400 text-white flex items-center justify-center text-3xl mb-4 shadow-sm">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <div class="text-center">
+                        <h3 id="consumo-hoje" class="text-3xl font-light text-gray-700 dark:text-gray-100">-- L</h3>
+                        <p class="text-gray-800 dark:text-gray-200 font-bold mt-1">Hoje</p>
+                        <p id="gasto-hoje" class="text-green-500 dark:text-green-400 font-semibold text-sm">Gasto: R$ --</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Semana -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 flex flex-col items-center justify-center transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-blue-400 text-white flex items-center justify-center text-3xl mb-4 shadow-sm">
+                        <i class="fa-solid fa-calendar-week"></i>
+                    </div>
+                    <div class="text-center">
+                        <h3 id="consumo-semana" class="text-3xl font-light text-gray-700 dark:text-gray-100">-- L</h3>
+                        <p class="text-gray-800 dark:text-gray-200 font-bold mt-1">Nesta Semana</p>
+                        <p id="gasto-semana" class="text-blue-500 dark:text-blue-400 font-semibold text-sm">Gasto: R$ --</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Mês -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 flex flex-col items-center justify-center transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-red-400 text-white flex items-center justify-center text-3xl mb-4 shadow-sm">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div class="text-center">
+                        <h3 id="consumo-mes" class="text-3xl font-light text-gray-700 dark:text-gray-100">-- L</h3>
+                        <p class="text-gray-800 dark:text-gray-200 font-bold mt-1">Neste Mês</p>
+                        <p id="gasto-mes" class="text-red-500 dark:text-red-400 font-semibold text-sm">Gasto: R$ --</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: Fluxo Atual -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 flex flex-col items-center justify-center transition-colors">
+                    <div class="w-16 h-16 rounded-full bg-yellow-400 text-white flex items-center justify-center text-3xl mb-4 shadow-sm">
+                        <i class="fa-solid fa-faucet-drip"></i>
+                    </div>
+                    <div class="text-center">
+                        <h3 id="fluxo-atual" class="text-3xl font-light text-gray-700 dark:text-gray-100">-- L/min</h3>
+                        <p class="text-gray-800 dark:text-gray-200 font-bold mt-1">Fluxo Atual</p>
+                        <p id="sensor-status" class="text-yellow-600 dark:text-yellow-400 font-semibold text-sm"><i class="fa-solid fa-circle text-gray-400 text-xs mr-1"></i>Aguardando...</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Chart 1: Histórico Meses (Área) -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 transition-colors">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-4 text-lg">Histórico Mensal (L)</h3>
+                    <div class="relative h-72 w-full">
+                        <canvas id="areaChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Consumo Semanal (Linha) -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 transition-colors">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-4 text-lg">Consumo na Semana (L)</h3>
+                    <div class="relative h-72 w-full">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydro Smart</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#1fb6ff', // Cyan from template
+                        sidebarHover: '#0fa3e5',
+                        topbar: '#343a40',  // Dark Gray
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Supabase Config -->
+    <script src="supabase-config.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-sidebar text-white flex-shrink-0 hidden md:flex md:flex-col transition-colors duration-300 dark:bg-gray-800">
+        <div class="h-14 flex items-center justify-center bg-topbar dark:bg-gray-950">
+            <h1 class="text-xl font-bold tracking-wider"><i class="fa-solid fa-droplet mr-2"></i>Hydro Smart</h1>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li>
+                    <a href="index.html" class="flex items-center px-6 py-3 hover:bg-sidebarHover transition-colors dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-gauge-high w-6"></i>
+                        <span class="ml-3">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="historico.html" class="flex items-center px-6 py-3 bg-sidebarHover border-l-4 border-white dark:bg-gray-700 dark:border-blue-500">
+                        <i class="fa-solid fa-chart-line w-6"></i>
+                        <span class="ml-3">Histórico</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center px-6 py-3 hover:bg-sidebarHover transition-colors dark:hover:bg-gray-700">
+                        <i class="fa-solid fa-gear w-6"></i>
+                        <span class="ml-3">Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Topbar -->
+        <header class="h-14 bg-topbar text-white flex items-center justify-between px-6 dark:bg-gray-950 transition-colors duration-300">
+            <button class="md:hidden text-gray-300 hover:text-white">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="flex-1"></div>
+            <div class="flex items-center space-x-4">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="text-gray-300 hover:text-white focus:outline-none" title="Alternar Modo Escuro">
+                    <i id="theme-toggle-dark-icon" class="fa-solid fa-moon hidden text-lg"></i>
+                    <i id="theme-toggle-light-icon" class="fa-solid fa-sun hidden text-lg"></i>
+                </button>
+                <button class="text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-bell text-lg"></i>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 p-6">
+            
+            <!-- Page Header -->
+            <div class="mb-6 border-b border-gray-200 dark:border-gray-700 pb-2 flex justify-between items-end">
+                <div>
+                    <h2 class="text-3xl font-light text-gray-800 dark:text-gray-100">Histórico <span class="text-lg text-gray-500 dark:text-gray-400">Consumo dos meses anteriores</span></h2>
+                    <div class="text-sm text-gray-500 mt-1 dark:text-gray-400">Início / Histórico</div>
+                </div>
+                <button class="px-4 py-2 bg-sidebar hover:bg-sidebarHover text-white rounded shadow transition-colors text-sm dark:bg-blue-600 dark:hover:bg-blue-700">
+                    <i class="fa-solid fa-download mr-1"></i> Exportar
+                </button>
+            </div>
+
+            <!-- Cards Row (3 Previous Months) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                
+                <!-- Month -1 (Maio) -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 border-t-4 border-sidebar dark:border-blue-500 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 id="hist-mes1-titulo" class="text-xl font-bold text-gray-700 dark:text-gray-200">---</h3>
+                            <p class="text-gray-500 text-sm dark:text-gray-400">Mês Passado</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sidebar dark:text-blue-400">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Volume Consumido:</span>
+                        <div id="hist-mes1-volume" class="text-2xl font-light text-gray-800 dark:text-gray-100">-- L</div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Valor Gasto:</span>
+                        <div id="hist-mes1-valor" class="text-2xl font-light text-gray-800 dark:text-gray-100">R$ --</div>
+                    </div>
+                </div>
+
+                <!-- Month -2 (Abril) -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 border-t-4 border-gray-300 dark:border-gray-600 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 id="hist-mes2-titulo" class="text-xl font-bold text-gray-700 dark:text-gray-200">---</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            <i class="fa-solid fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Volume Consumido:</span>
+                        <div id="hist-mes2-volume" class="text-2xl font-light text-gray-800 dark:text-gray-100">-- L</div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Valor Gasto:</span>
+                        <div id="hist-mes2-valor" class="text-2xl font-light text-gray-800 dark:text-gray-100">R$ --</div>
+                    </div>
+                </div>
+
+                <!-- Month -3 (Março) -->
+                <div class="bg-white dark:bg-gray-800 rounded shadow p-6 border-t-4 border-gray-300 dark:border-gray-600 transition-colors">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 id="hist-mes3-titulo" class="text-xl font-bold text-gray-700 dark:text-gray-200">---</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            <i class="fa-solid fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Volume Consumido:</span>
+                        <div id="hist-mes3-volume" class="text-2xl font-light text-gray-800 dark:text-gray-100">-- L</div>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Valor Gasto:</span>
+                        <div id="hist-mes3-valor" class="text-2xl font-light text-gray-800 dark:text-gray-100">R$ --</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Tabela Detalhada -->
+            <div class="bg-white dark:bg-gray-800 rounded shadow overflow-hidden transition-colors">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-200">Detalhamento dos Últimos Meses</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400 text-sm uppercase tracking-wider">
+                                <th class="px-6 py-3 font-medium">Mês / Ano</th>
+                                <th class="px-6 py-3 font-medium">Volume (L)</th>
+                                <th class="px-6 py-3 font-medium">Valor Total (R$)</th>
+                                <th class="px-6 py-3 font-medium">Status</th>
+                                <th class="px-6 py-3 font-medium text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historico-tbody" class="divide-y divide-gray-200 dark:divide-gray-700 text-gray-700 dark:text-gray-300">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-gray-400">
+                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>Carregando dados...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="historico.js"></script>
+</body>
+</html>
