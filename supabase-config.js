@@ -1,4 +1,4 @@
 const SUPABASE_URL = 'https://nnlqgmtwahantjsmmohb.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_7pOymjtINxlXfiBe_b6ITQ_js-_eFR_';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ubHFnbXR3YWhhbnRqc21tb2hiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyMDI1NzUsImV4cCI6MjA5Njc3ODU3NX0.-oRB6El7xBEtflGA-Dr2_fStS3OXk7OA31YF7M2Xjxs';
 
 const PRECO_POR_LITRO = 0.005;
